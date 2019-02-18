@@ -64,7 +64,41 @@ mysql> create table t_user(id int ,name varchar(20));
 
 从机会相应的创建数据库及主结构，测试完毕。
 
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+4 rows in set (0.06 sec)
 
+mysql> use test;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| t_class        |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> select * from t_class;
+Empty set (0.00 sec)
+
+mysql> select * from t_class;
++------+------+
+| id   | name |
++------+------+
+|    1 | kaka |
+|    2 | cLo  |
++------+------+
+2 rows in set (0.00 sec)
 
 
 
