@@ -1,0 +1,70 @@
+# centos6.5 搭建mysql主从
+## 一 虚拟机环境搭建：使用vmware构建虚拟机A,确保虚拟机可以联网，安装yum及wget相关工具，使用yum安装mysql。为什么使用yum安装，因为下载安装包比较麻烦，需要
+自己修改相关权限及创建文件目录。安装步骤可以参考：https://blog.csdn.net/liulihui1988/article/details/78050671 (安装包);以及https://www.cnblogs.com/007sx/p/7083143.html
+（yum安装方式）.
+## 二 安装完成后使用
+ [root@localhost mysql]# mysql -uroot -p 查看mysql是否启动成功。
+## 然后关闭虚拟机A，克隆一个虚拟机B。如果有其他虚拟机可以省略该步骤。
+## 三 打开虚拟机A，启动mysql服务（最新是mysqld），编辑mysql配置：
+ vim /etc/my.cnf
+ 修改：
+log-bin=mysql-bin
+server-id = 1
+binlog-ignore-db=mysql
+保存后重启服务：service mysqld restart;
+进入mysql：
+# mysql -uroot -p
+查看mysql Master状态：
+# show master status;
+输出如下：
+------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      120 |              | mysql            |                 
+#添加一个新的mysql用户，用于从机连接：
+# grant replication slave on *.* to 'slave'@'%' identified by '123456';
+---------- 虚拟机A的mysql作为主Master配置完毕；--------------
+## 四 打开虚拟机B，因为是克隆，所以需要修改mysql的uuid，
+# find / -name auto.cnf,
+修改里面的uuid值,避免于master主机相同，如果部署克隆的，可省略该步骤：
+# 
+[root@localhost mysql]# vim auto.cnf 
+[auto]
+server-uuid=c7d61d2d-3348-11e9-b145-001c29c1873b
+# 修改mysql配置文件：
+
+[root@localhost ~]# vim /etc/my.cnf
+添加如下内容：
+server-id=2
+replicate-do-db = test
+replicate-ignore-db = mysql
+
+#保存后重启mysql服务：
+service mysqld restart
+
+## 五 进入虚拟机B mysql
+mysql -uroot -p
+设置从机的执行命令：
+CHANGE MASTER TO
+MASTER_HOST='192.168.211.128',
+MASTER_USER='slave',
+MASTER_PASSWORD='123456',
+MASTER_PORT=3306,
+MASTER_LOG_FILE='mysql-bin.000002', #主机的日志同步文件名
+MASTER_LOG_POS=120, #主机的日志同步位置
+MASTER_CONNECT_RETRY=10;
+
+---------- 虚拟机B的mysql 从机配置完成-----------
+
+## 六 测试：
+在虚拟机A上创建数据库test及表 t_user
+mysql> create database test;
+mysql> use database test;
+mysql> create table t_user(id int ,name varchar(20));
+
+从机会相应的创建数据库及主结构，测试完毕。
+
+
+
+
+
