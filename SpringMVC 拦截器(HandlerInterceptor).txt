@@ -1,0 +1,93 @@
+Srping mvc HandlerInterceptor
+1 三个方法:
+	boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object)
+	// preHandle方法在当前线程进入Controller业务方法前执行，也就是说此时此时与Controller无关。
+	
+	void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)
+	//postHandle方法在Controller方法执行之后，在客户端请求返回之前（视图渲染之前）执行，此时，还可以修改modelAndView的内容。
+	
+	void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+	//afterCompletion方法在客户端请求已经返回之后，此时页面已经渲染完成，主要是处理日志或者异常信息。
+	
+	参考代码：
+			try{
+				//...
+			
+				if (!mappedHandler.applyPreHandle(processedRequest, response)) {//preHandle方法先执行
+					return;
+				}
+
+				try {
+					// Actually invoke the handler.
+					mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+				}
+				finally {
+					if (asyncManager.isConcurrentHandlingStarted()) {
+						return;
+					}
+				}
+
+				applyDefaultViewName(request, mv);
+				mappedHandler.applyPostHandle(processedRequest, response, mv);//postHandle其次
+			}
+			catch (Exception ex) {
+				dispatchException = ex;
+			}
+			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);//afterCompletion方法最后
+
+	
+2 Springboot实现Inteceptor需要继承类WebMvcConfigAdapter并且重写addIntercepotrs()方法:
+	
+	@Configuration
+	public class AuthInterceptor extends WebMvcConfigAdapter {
+		@Override
+		public void addInterceptors(InterceptorRegistry registry) {
+			// to do ..
+		}
+	}
+	
+3 需要注意：应用注册多个Interceptor前提下，与preHandle方法不同的是，postHandle/afterCompletion按照最先注册最后执行的顺序执行;
+
+	//Springmvc 的DispatcherServlet调用dispatch方法，执行多个拦截器的preHandle方法，按照先注册先执行
+	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HandlerInterceptor[] interceptors = getInterceptors();
+		if (!ObjectUtils.isEmpty(interceptors)) {
+			for (int i = 0; i < interceptors.length; i++) {
+				HandlerInterceptor interceptor = interceptors[i];
+				if (!interceptor.preHandle(request, response, this.handler)) {
+					triggerAfterCompletion(request, response, null);
+					return false;
+				}
+				this.interceptorIndex = i;
+			}
+		}
+		return true;
+	}
+	
+	//Springmvc 的DispatcherServlet调用dispatch方法，执行多个拦截器的postHandle方法，按照先注册后执行
+	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, ModelAndView mv) throws Exception {
+		HandlerInterceptor[] interceptors = getInterceptors();
+		if (!ObjectUtils.isEmpty(interceptors)) {
+			for (int i = interceptors.length - 1; i >= 0; i--) {
+				HandlerInterceptor interceptor = interceptors[i];
+				interceptor.postHandle(request, response, this.handler, mv);
+			}
+		}
+	}
+	//Springmvc 的DispatcherServlet调用dispatch方法，执行多个拦截器的afterCompletion方法，按照先注册后执行
+	void triggerAfterCompletion(HttpServletRequest request, HttpServletResponse response, Exception ex)
+			throws Exception {
+
+		HandlerInterceptor[] interceptors = getInterceptors();
+		if (!ObjectUtils.isEmpty(interceptors)) {
+			for (int i = this.interceptorIndex; i >= 0; i--) {
+				HandlerInterceptor interceptor = interceptors[i];
+				try {
+					interceptor.afterCompletion(request, response, this.handler, ex);
+				}
+				catch (Throwable ex2) {
+					logger.error("HandlerInterceptor.afterCompletion threw exception", ex2);
+				}
+			}
+		}
+	}
