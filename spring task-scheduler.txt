@@ -1,0 +1,44 @@
+1 Spring taskExecutor 
+	taskExecutor 用于多线程任务异步执行；
+	主要实现类：ThreadPoolTaskExecutor/ConcurrentTaskExecutor,
+	ThreadPoolTaskExecutor默认的线程池核心池大小是8，线程池最大值和队列大小为Integer的最大值;
+	容器启动时，先加载spring.task.excution.pool.core-size配置参数，初始化TaskExecutionProperties，
+	接着构建TaskExecutionAutoConfiguration实例，生成ThreadPoolTaskExecutor bean。
+2  Spring taskScheduler
+    taskScheduler 用于定时任务或者周期任务执行;
+	@EnableScheduling() //注解开启任务调度配置
+	@Scheduled(cron="")//注解调度的任务
+	默认核心线程池个数为1，可以通过spring.task.scheduling.pool.size调整
+	
+3 cron表达式含义说明(从左到右):
+  注意：当方法的执行时间超过任务调度周期，例如每隔30s执行，但是任务执行了40s，则要等到下一个任务周期执行，也就是60s时。
+  /**
+  序号	含义	参数
+	1	秒      0-59
+	2	分		0-59
+	3	时		0-23
+	4	日		1-31
+	5	月		1-12
+	6   星期	1-7
+	7	年(可选) 1979-2099
+  **/
+  @Scheduled(cron="0/30 * * * * * *")	
+  public void cronWork(){
+	// ..
+  }	
+  
+  /**
+     * 固定间隔时间，总是保证在上一次任务完成固定时间后执行
+     */
+    @Scheduled(fixedDelay = 5*1000)
+    public void workFixDelay() {
+        logger.info(" work fix delay 固定间隔5s执行一次 ");
+    }
+
+    /**
+     * 固定频率执行，每5s执行一次，如果上一个任务执行时间超过5s，则完成任务后立刻执行下次任务
+     */
+    @Scheduled(fixedRate = 5*1000)
+    public void workFixRate() {
+        logger.info(" work fix rate 固定间隔5s执行一次 ");
+    }

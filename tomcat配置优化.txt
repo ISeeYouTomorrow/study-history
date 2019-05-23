@@ -1,7 +1,7 @@
 1.tomcat配置内存
     注意：tomcat8.5+推荐在catalina.bat同级目录下新建setenv.bat/setenv.sh文件，配置 
 	windows：
-	SET  "JAVA_OPTS=-server -Xms1g -Xmx1g -Xss512k -XX:MaxPermSize=128m"
+	SET  "JAVA_OPTS=-server -Xms1g -Xmx1g -Xss512k -XX:MaxPermSize=128m -XX:+HeapDumpOnOutOfMemoryError -XX:+HeapDumpPath=./oom.dump"
 	Linux
 	export CATALINA_OPTS="$CATALINA_OPTS -Xms1024m"
 	export CATALINA_OPTS="$CATALINA_OPTS -Xmx1024m"

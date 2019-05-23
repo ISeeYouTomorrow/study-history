@@ -1,0 +1,89 @@
+基于Redis的tomcatweb容器session共享：
+1. 倘若是nginx负载均衡使用了ip_hash策略，则一般情况不需要额外的代码修改，相同ip地址的session会被记录到同一个tomcat中；
+2. 也可以使用tomcat本身的session复制扩展功能，具体就是修改：
+	tomcat的server.xml文件,找到Cluster节点，取消注释：
+	<Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"
+		channelSendOptions="8">
+
+		<Manager className="org.apache.catalina.ha.session.DeltaManager"
+		expireSessionsOnShutdown="false"
+		notifyListenersOnReplication="true"/>
+
+		<Channel className="org.apache.catalina.tribes.group.GroupChannel">
+		<Membership className="org.apache.catalina.tribes.membership.McastService"
+		bind="127.0.0.1"
+		address="228.0.0.4"<!--保留ip,用于广播-->
+		port="45564"
+		frequency="500"
+		dropTime="3000"/> 
+		<Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver"
+		address="auto"
+		port="4001"<!--如果是在同一台机器上的两个tomcat做负载，则此端口则不能重复-->
+		autoBind="100"
+		selectorTimeout="5000"
+		maxThreads="6"/>
+		<Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+		<Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
+		</Sender>
+		<Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
+		<Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatch15Interceptor"/>
+		</Channel>
+
+		<Valve className="org.apache.catalina.ha.tcp.ReplicationValve" filter=""/>
+		<Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
+
+		<Deployer className="org.apache.catalina.ha.deploy.FarmWarDeployer"
+		tempDir="e:/tmp/war-temp/"
+		deployDir="e:/tmp/war-deploy/"
+		watchDir="e:/tmp/war-listen/"
+		watchEnabled="false"/>
+		<ClusterListener className="org.apache.catalina.ha.session.JvmRouteSessionIDBinderListener"/>
+		<ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
+		</Cluster>
+		
+	其次，修改应用的web.xml文件，添加 <distributable/>节点。
+3. 	使用第三方的session管理工具，原理就是通过filter过滤器拿到httpSession进行封装，不在使用tomcat 进行session管理，而是将session信息存放到缓存里；例如redis服务器。
+	具体步骤：
+	1）增加redis client/spring session的依赖
+		将相关jar包拷贝到tomcat/lib/目录下：jedis.jar/commonpool.jar/tomcat-redis-session-manager-2.0.0.jar
+	2）修改web.xml,增加filter：springsessionFilter
+		<!-- spring-session
+		<filter>
+			<filter-name>springSessionRepositoryFilter</filter-name>
+			<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		</filter>
+		<filter-mapping>
+			<filter-name>springSessionRepositoryFilter</filter-name>
+			<url-pattern>/*</url-pattern>
+		</filter-mapping>
+		 -->
+	3）修改spring配置文件，在容器中注入spring session和redis相关bean。
+		<bean id="redisHttpSessionConfiguration"
+			class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+			<property name="maxInactiveIntervalInSeconds" value="600" />
+		</bean>
+
+		<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+			<property name="maxTotal" value="100" />
+			<property name="maxIdle" value="10" />
+		</bean>
+
+		<bean id="jedisConnectionFactory"
+			class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+			destroy-method="destroy">
+			<property name="hostName" value="localhost" />
+			<property name="port" value="6379" />
+			<property name="timeout" value="3000" />
+			<property name="usePool" value="true" />
+			<property name="poolConfig" ref="jedisPoolConfig" />
+		</bean>
+	
+4 注意：
+	放置在session中的对象必须是可序列化的；
+	SpringSessionRepositoryFilter的顺序要在其他获取session的filter的之前；
+	Session的失效时间由redis节点失效时间决定，原有的配置不起作用；
+	登出的时候，一定确保显式的调用了session.invalidate();
+	
+	
+	
+	
