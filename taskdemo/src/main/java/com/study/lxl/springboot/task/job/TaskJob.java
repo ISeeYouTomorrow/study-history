@@ -25,12 +25,12 @@ public class TaskJob {
 
     @Async
     public void task2() {
-        logger.info("执行任务 task1 success ");
+        logger.info("执行任务 task2 success ");
     }
 
     @Async
     public void task3() {
-        logger.info("执行任务 task1 success ");
+        logger.info("执行任务 task3 success ");
     }
 
 }
