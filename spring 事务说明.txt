@@ -1,0 +1,36 @@
+1.JPA: JAVA persistence API,通过注解或者XML描述的映射关系，将实体对象持久化到数据库中。
+    1)ORM映射源数据  @Entity @Table @Column @Transient
+    2)JPA的API
+    3）面向对象查询语句。
+  JPA仅仅定义了对象持久化映射的接口，需要类似Hibernate框架实现才能工作。其他类似框架：OpenJPA TopLink
+  Spring data jpa 是spring提供的一套简化JPA开发的框架，可以理解为JPA规范的再次封装抽象，底层是Hibernate的JPA具体技术实现。
+
+  JDBCTemplate:
+    是Spring框架自带的对JDBC操作的封装，目的是通过提供统一的模板方法对数据库的操作更加方便，友好。
+
+  JTA：Java Transaction API 提供了跨数据库连接的事务管理能力。简单而言，Jta定义了多数据库跨库操作事务统一接口，jdbc事务只是针对单库操作的事务处理。
+    1)JTA的构成：
+        a：高层应用事务界定接口，供事务客户界定事务边界。
+        b:X/Open XA协议（资源之间的一种标准化的接口）的标准JAVA映射，可以是事务性的管理管理器参与有外部事务管理器控制的事务中。
+        c:高层事务管理器接口，允许应用程序服务器为其管理的应用程序界定事务的边界。
+    2)JTA的主要接口：
+        a: UserTransaction接口：让应用程序得以控制事务的开始，挂起，提交，回滚等。由java客户端程序或EJB调用。
+        b: TransactionManager接口：用于应用服务器管理事务状态。
+        c：Transaction接口：用于执行事务操作。
+        d：XAResource接口：用于在分布式事务环境下，协调事务管理器和资源管理器的工作
+        e：XID接口：为事务标识符的java映射。
+    使用步骤：
+        a:首先配置JTA，建立相应的数据源。
+        b：建立事务：通过创建UserTransaction类的实例来开始一个事务。
+           Context ctx = new InitialContext(p);
+　         UserTransaction trans = (UserTransaction) ctx.lookup("javax. Transaction.UserTransaction")
+        c:开始事务:trans.begin();
+        d、找出数据源：从Weblogic Server上找到数据源，代码如下：
+        　DataSource ds = (DataSource) ctx.lookup(“mysqldb") ;
+        e、建立数据库连接：Connection mycon = ds.getConnection() ;
+        f、执行SQL操作：stmt.executeUpdate(sqlS);
+        g、完成事务：trans.commit(); / trans.rollback();
+        h、关闭连接：mycon.close() ;
+
+幂等性，一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同
+2. Spring 事务

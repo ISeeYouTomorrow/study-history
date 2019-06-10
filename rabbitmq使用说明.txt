@@ -1,0 +1,22 @@
+1.rabbitmq:持久性消息机制 ，投递确认，发布者证实，高可用机制。
+Rabbitmq使用发送方确认模式，确保消息正确的发送到RabbitMQ。发送方确认模式，将信道设置成confirm模式，则所有在信道上发布的消息都会被指派一个唯一的ID。一旦消息被投递到目的队列后，或者消息被写入磁盘后（可持久化的消息），信道会发送一个确认给生产者（包含消息唯一ID）。
+如果RabbitMQ发生内部错误从而导致消息丢失，会发送一条nack（not acknowledged，未确认）消息。
+发送方确认模式是异步的，生产者应用程序在等待确认的同时，可以继续发送消息。当确认消息到达生产者应用程序，生产者应用程序的回调方法就会被触发来处理确认消息。
+2.接收方消息确认机制：消费者接收每1条消息后都必须进行确认，（消息接收和消息确认是两个不同操作）。只有消费者确认了消息，RabbitMQ才能安全的把消息从队列中删除。
+3 分布式事务mq5步走：
+    1）订单入库
+    2）生成1条需要发送到MQ的消息，并且保存到数据库；
+    3）调用API传递消息到MQ
+    4）收到MQ的正确回执后，将数据库中的消息状态调整为已发送。(消息状态没改：则需要简称数据库消息状态，定时调度去重新发送)
+        //发送方发送方法：
+        rabbitTemplate.convertAndSend("createOrderExchange", "", orderInfo.toJSONString()
+                ,new CorrelationData(orderInfo.getString("orderId")));
+        //发送方收到回执回调方法：
+        rabbitTemplate.setConfirmCallback((correlationData, ack, s) -> {
+
+        });
+    5）消费者收到MQ中指定的消息，开始处理：
+        5.1) 处理成功，主动通知MQ消息已正确处理，可以删除。(channel.basicAck(tag,false);)
+        5.2）处理失败，通知MQ消息需要重新处理，再推送一次。(channel.basicNack(tag,false,true);)
+        5.3）处理失败，消费者认为此类错误，不需要再次处理，通知MQ删除（DLQ）。(channel.basicNack(tag,false,false);)
+

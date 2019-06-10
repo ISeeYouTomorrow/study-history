@@ -1,0 +1,13 @@
+1. 强制性规则：对象的wait/notify/notifyAll方法必须在同步代码里执行，也就是说执行对象的wait/notify方法，必须先要获取该对象的锁，
+   否则JVM会提示IllegalMonitorStateException的异常。
+2. 一旦线程调用了wait方法，它就释放了所持有的监视器对象的锁，这意味着其他等待线程将可以调用wait或者notify方法。
+   一旦一个线程被唤醒，不能立刻就退出wait方法调用，直到调用notify方法的线程退出了自己的同步块。
+   即被唤醒的线程必须重新获得监视器对象的锁，才可以退出wait方法的调用，因为wait方法的调用必须运行在同步代码块内。如果多个线程被notifyAll调用，有且只有一个线程可以退出wait方法，因为每个线程在退出wait方法前必须获得监视器对象的锁。
+3. 假唤醒：由于莫名其妙的原因，线程可能在没有调用过notify/notifyAll方法的情况下醒来。
+   为了预防假唤醒，必须在同步代码块里通过while循环进行判断，这个while循环叫做自旋锁。被唤醒的线程会自旋到while循环的条件变为false为止。
+    synchronized(object){
+        while(flag){
+            object.wait();
+        }
+    }
+4. 在wait()/notify()机制中，不要使用全局对象，字符串常量等。应该使用对应唯一的对象。

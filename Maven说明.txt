@@ -1,0 +1,93 @@
+1.依赖包的下载本地库优先，其次是私服仓库，然后是远程仓库，远程仓库可以通过镜像配置进行重定向。具体而言：如果配置了远程仓库的镜像，则对于远程仓库的请求会被重定向到镜像仓库，提高效率。
+2.Maven默认的生命周期：default clean site,其中default包括：validate,complie,test,package,verify,install,deploy的各个阶段。clean包括：preclean-前置清理工作，clean：清理之前编译打包产生的文件，postclean：clean之后的工作。
+3.Maven依赖冲突的解决：短路优先和声明优先。依赖排除的方法：使用
+    <exclusions>
+       <exclusion>
+           <groupId>
+                excluded.groupId
+           </groupId>
+           <artifactId>
+                excluded-artifactId
+           </artifactId>
+       </exclusion>
+    </exclusions>
+4.冲突解决：mvn dependency:tree -Dverbose -Dincludes=com.apache.***
+
+5.指令参数:
+    -D:传入属性参数，例如mvn install -DskipTests=true
+
+    -P:使用指定的profile配置，项目存在多环境的配置，如开发，测试，正式，在pom.xml配置如下：
+    profiles定义了各个环境的变量 id， filters中定义了变量配置文件的地址，其中地址中的环境变量就是上面 profile中定义的值，
+    resources中是定义哪些目录下的文件会被配置文件中定义的变量替换。
+    通过maven可以实现按不同环境进行打包部署，命令为:
+    打包命令：mvn package -P dev
+
+    <profiles>
+        <profile>
+            <id>
+                dev
+            </id>
+            <properties>
+                <env>
+                    dev
+                </env>
+            </properties>
+            <activation>
+                <activeByDefault>
+                    true
+                </activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+        <id>
+            qa
+        </id>
+        <properties>
+            <env>
+                qa
+            </env>
+        </properties>
+        </profile>
+        <profile>
+            <id>
+                pre
+            </id>
+            <properties>
+                <env>
+                    pre
+                </env>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>
+                prod
+            </id>
+            <properties>
+                <env>
+                    prod
+                </env>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+    <filters>
+
+        <filter>
+            config/${env}.properties
+        </filter>
+
+    </filters>
+    <resources>
+        <resource>
+
+            <directory>
+                src/main/resources
+            </directory>
+            <filtering>
+                true
+            </filtering>
+        </resource>
+    </resources>
+    </build>

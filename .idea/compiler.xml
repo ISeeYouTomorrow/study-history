@@ -9,7 +9,7 @@
         <module name="taskdemo" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="taskdemo" target="1.8" />
     </bytecodeTargetLevel>
   </component>

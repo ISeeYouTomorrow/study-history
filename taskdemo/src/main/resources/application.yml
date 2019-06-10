@@ -1,8 +1,25 @@
 spring:
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
-    url: jdbc:mysql://127.0.0.1:3310/sowork?useUnicode=true&characterEncoding=UTF-8
-    type: org.apache.ibatis.datasource.pooled.PooledDataSource
+    url: jdbc:mysql://127.0.0.1:3310/sowork?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+  freemarker:
+    charset: utf-8
+    template-loader-path: classpath:/template
+  mvc:
+    static-path-pattern: /static/**
+#使用jpa
+#  jpa:
+#    database: mysql
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: update
+
 server:
   port: 8090
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.study.lxl.springboot.task.model
+

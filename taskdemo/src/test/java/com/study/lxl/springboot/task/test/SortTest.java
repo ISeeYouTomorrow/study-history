@@ -1,9 +1,7 @@
-package test;
+package com.study.lxl.springboot.task.test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -15,15 +13,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 public class SortTest {
 	DescComparator comparator = new DescComparator();
-	
+
 	@Test
 	public void testRandomfile() throws IOException {
 		RandomAccessFile file = new RandomAccessFile("F:\\tomcat\\study\\apache-tomcat-8.5.31-dongnao-mall\\conf\\web - 副本.xml", "rw");
@@ -37,7 +33,7 @@ public class SortTest {
 		mbb.clear();
 		file.close();
 	}
-	
+
 	/**
 	 * 比较器 倒排
 	 * @author 18515
@@ -53,9 +49,9 @@ public class SortTest {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * set 排序
 	 */
@@ -71,13 +67,13 @@ public class SortTest {
 			}
 		}
 		System.out.println("set size = "+set.size());
-		
+
 		for(Integer val : set) {
 			System.out.print(""+val+",");
 		}
-		
+
 	}
-	
+
 	/**
 	 * treemap 排序
 	 */
@@ -92,9 +88,9 @@ public class SortTest {
 				tree.remove(tree.firstKey());
 			}
 		}
-			
+
 		System.out.println("tree size :"+tree.size());
-		
+
 		Set<Map.Entry<Integer,Integer>> set = tree.entrySet();
 		Iterator<Map.Entry<Integer,Integer>> it = set.iterator();
 		while(it.hasNext()) {
@@ -102,16 +98,16 @@ public class SortTest {
 			System.out.println(""+map.getKey()+" => "+map.getValue());
 		}
 	}
-	
+
 	private BlockingQueue<Integer> container = new SynchronousQueue();
 	private volatile boolean terminate = false;
-	
+
 	private List<Integer> list = new ArrayList<>();
-	
+
 	private Integer getRandom() {
 		return (int)(Math.random()*10);
 	}
-	
+
 	/**
 	 * 测试生产者不停的写入一个整数，消费者读取该整数，如果连续三个数之和=9，则停止
 	 */
@@ -133,8 +129,8 @@ public class SortTest {
 				}
 			}
 		});
-		
-		
+
+
 		Thread consumer = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -154,11 +150,11 @@ public class SortTest {
 				}
 			}
 		});
-		
+
 		consumer.start();
-		
+
 		provider.start();
-		
+
 		try {
 			consumer.join();
 			provider.join();
@@ -166,7 +162,7 @@ public class SortTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public boolean trace(List<Integer> list) {
 		Integer t = 0;
 		for (Integer temp : list) {
@@ -176,13 +172,13 @@ public class SortTest {
 		System.out.println();
 		if(list.size() <3)
 			return false;
-			
+
 		return t==9;
 	}
-	
-	
+
+
 	public static void main(String[] args) {
-		
+
 		SortTest st = new SortTest();
 //		System.out.println(st.getRandom());
 		st.testQueue();
