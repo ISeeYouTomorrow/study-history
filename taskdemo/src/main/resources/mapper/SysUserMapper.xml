@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.lxl.springboot.task.mapper.SysUserMapper">
+    <!-- 设置命名空间缓存配置 -->
+    <cache eviction="LRU" flushInterval="30000" size="512"/>
+    <resultMap id="sysuser" type="com.study.lxl.springboot.task.model.SysUser">
+        <id column="user_id" property="userId"></id>
+        <result column="company_number" property="companyNumber"/>
+        <result column="username" property="userName"/>
+        <result column="realname" property="realName"/>
+    </resultMap>
+
+    <select id="queryList" resultMap="sysuser">
+        SELECT  `user_id`, `company_number`, `user_email`, `username`, `realname`
+        FROM sys_user limit 0,10
+    </select>
+
+
+    <select id="queryById" resultMap="sysuser">
+        SELECT  `user_id`, `company_number`, `user_email`, `username`, `realname`
+        FROM sys_user
+        where user_id = #{id}
+    </select>
+</mapper>

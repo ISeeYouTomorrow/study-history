@@ -1,0 +1,94 @@
+1 AMQP:高级消息队列协议，Advanced Message Queue Protocol;应用层协议，与语言无关；
+  ActiveMQ RabbitMQ RocketMQ ZeroMQ Kafka
+  消息是指在应用之间传递的数据。
+  消息队列使用场景：业务解耦，最终一致性，广播，错峰流控。
+
+2 RabbitMQ特点：
+    1）可靠性：消息持久性，传输确认，发送确认机制。
+    2）灵活的路由：
+    在消息进入队列之前，通过 Exchange 来路由消息的。对于典型的路由功能，RabbitMQ 已经提供了一些内置的 Exchange 来实现。
+    针对更复杂的路由功能，可以将多个 Exchange 绑定在一起，也通过插件机制实现自己的 Exchange 。
+    3）消息集群(clustering)
+    多个 RabbitMQ 服务器可以组成一个集群，形成一个逻辑 Broker 。
+    4)高可用队列(high available queues)
+    队列可以在集群中的机器上进行镜像，使得在部分节点出问题的情况下队列仍然可用。
+    5)多种协议支持（Multi-protocol）
+      RabbitMQ 支持多种消息队列协议，比如 STOMP、MQTT 等等。
+    6)跟踪机制（Tracing）
+    如果消息异常，RabbitMQ 提供了消息跟踪机制，使用者可以找出发生了什么。
+
+    7)插件机制（Plugin System）
+    RabbitMQ 提供了许多插件，来从多方面进行扩展，也可以编写自己的插件
+
+    8)多语言客户端（Many Clients）
+    RabbitMQ 几乎支持所有常用语言，比如 Java、.NET、Ruby 等等。
+
+    9)管理界面（Management UI）
+    RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管理消息 Broker 的许多方面。
+
+3 RabbitMQ组件
+    1) Message：消息头+消息体，可选属性：消息id routing-key（路由键） priority（优先级） delivery-mode（消息是否需要持久化,默认true）
+    2) Publisher: 消息发布者，向交换器发布消息的客户端应用程序。
+    3) Exchange:交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。
+    4) Binging：绑定，用于消息队列与交换器之间的关联。一个绑定就是基于路由键将交换器和消息队列连接起来的路由规则，因此可以将交换器理解为由绑定构成的路由表。
+        @Bean("hebeiBinding")
+        public Binding binding(@Qualifier("hebeiDefaultExchange") DirectExchange defaultExchange,@Qualifier("hebeiQueueA")Queue queueA) {
+            return BindingBuilder.bind(queueA).to(defaultExchange).with(LogwsdHebeiRabbitMQConfigurer.ROUTINGKEY_A);
+        }
+    5) Queue：消息队列，用来保存消息直到发送给消费者。
+    6) Connection: 网络连接，比如tcp连接。
+    7) Channel: 通信信道。多个信道复用一个tcp连接。信道是虚拟的连接。
+    8) Consumer: 消息的消费者。即从队列中获取消息的客户端程序。
+        //建立到代理服务器到连接
+        Connection conn = factory.newConnection();
+        //获得信道
+        final Channel channel = conn.createChannel();
+        //声明交换器
+        String exchangeName = "hello-exchange";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        //声明队列
+        String queueName = channel.queueDeclare().getQueue();
+        String routingKey = "hola";
+        //绑定队列，通过键 hola 将队列和交换器绑定起来
+        channel.queueBind(queueName, exchangeName, routingKey);
+
+        while(true) {
+            //消费消息
+            boolean autoAck = false;
+            String consumerTag = "";
+            channel.basicConsume(queueName, autoAck, consumerTag, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag,
+                                           Envelope envelope,
+                                           AMQP.BasicProperties properties,
+                                           byte[] body) throws IOException {
+                    String routingKey = envelope.getRoutingKey();
+                    String contentType = properties.getContentType();
+                    System.out.println("消费的路由键：" + routingKey);
+                    System.out.println("消费的内容类型：" + contentType);
+                    long deliveryTag = envelope.getDeliveryTag();
+                    //确认消息
+                    channel.basicAck(deliveryTag, false);
+                    System.out.println("消费的消息体内容：");
+                    String bodyStr = new String(body, "UTF-8");
+                    System.out.println(bodyStr);
+
+                }
+            });
+    9) Virtual Host: 虚拟主机，表示一批交换器、消息队列和相关对象。虚拟主机是共享相同的身份认证和加密环境的独立服务器域。
+       每个 vhost 本质上就是一个 mini 版的 RabbitMQ 服务器，拥有自己的队列、交换器、绑定和权限机制。
+       vhost 是 AMQP 概念的基础，必须在连接时指定，RabbitMQ 默认的 vhost 是 / 。
+    10）Broker: 表示消息队列服务器实体。
+
+4 RabbitMQ内建集群功能设计的目的是允许消费者和生产者在节点崩溃的情况下继续运行，以及通过添加更多的节点来线性扩展消息通信吞吐量。RabbitMQ 内部利用 Erlang 提供的分布式通信框架 OTP 来满足上述需求。
+    ./sbin/rabbitmqctl -n test_rabbit_2 join_cluster test_rabbit_1@localhost //添加集群
+
+    RABBITMQ_NODENAME=test_rabbit_3 RABBITMQ_NODE_PORT=5674 ./sbin/rabbitmq-server -detached
+
+    ./sbin/rabbitmqctl -n test_rabbit_3 stop_app
+
+    ./sbin/rabbitmqctl -n test_rabbit_3 reset
+
+    ./sbin/rabbitmqctl -n test_rabbit_3 join_cluster test_rabbit_1@localhost
+
+    ./sbin/rabbitmqctl -n test_rabbit_3 start_app
