@@ -9,6 +9,9 @@ spring:
     template-loader-path: classpath:/template
   mvc:
     static-path-pattern: /static/**
+  redis:
+    host: 127.0.0.1
+    database: 1
 #使用jpa
 #  jpa:
 #    database: mysql
