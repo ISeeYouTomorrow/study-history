@@ -1,9 +1,6 @@
 package tree;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @ClassName LevelOrderSolution
@@ -49,7 +46,7 @@ public class LevelOrderSolution {
     }
 
     /**
-     * 使用递归调用遍历
+     * 使用递归调用遍历 bfss=     广度优先搜索-bfs [bread
      * @param root
      * @return
      */
@@ -63,7 +60,7 @@ public class LevelOrderSolution {
     }
     private List<List<Integer>> rs = new ArrayList<>();
     private void levelOrderHelper(TreeNode root, int length) {
-        if (rs.size() == length) {
+        if (rs.size() == length) {//临界条件，判断层级列表是否需要初始化
             rs.add(new ArrayList<>());
         }
         rs.get(length).add(root.val);
@@ -81,14 +78,20 @@ public class LevelOrderSolution {
         LevelOrderSolution sl = new LevelOrderSolution();
 
 
-//        List<List<Integer>> list = sl.levelOrder(root);
+        List<List<Integer>> list1 = sl.levelOrder(root);
+        list1.forEach(l-> {
+            l.forEach(integer ->
+                    System.out.print(integer));
 
+            System.out.println();
+        });
+        System.out.println("---------------------------");
         List<List<Integer>> list = sl.levelOrderByWhile(root);
         list.forEach(l-> {
-                    l.forEach(integer ->
-                            System.out.print(integer));
+            l.forEach(integer ->
+                    System.out.print(integer));
 
-                    System.out.println();
-                });
+            System.out.println();
+        });
     }
 }
