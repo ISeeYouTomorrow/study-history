@@ -4,6 +4,9 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/taskdemo/pom.xml" />
+        <option value="$PROJECT_DIR$/concurrent-study/pom.xml" />
+        <option value="$PROJECT_DIR$/java-pattern/pom.xml" />
+        <option value="$PROJECT_DIR$/distribute-demo/pom.xml" />
       </list>
     </option>
   </component>

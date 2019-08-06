@@ -2,14 +2,21 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="concurrent-study" />
+        <module name="distribute-demo" />
+        <module name="java-pattern" />
         <module name="taskdemo" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
+      <module name="concurrent-study" target="1.8" />
+      <module name="distribute-demo" target="1.8" />
+      <module name="java-pattern" target="1.8" />
       <module name="taskdemo" target="1.8" />
     </bytecodeTargetLevel>
   </component>

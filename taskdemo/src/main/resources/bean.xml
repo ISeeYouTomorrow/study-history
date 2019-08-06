@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        1 无法解决构造函数循环依赖
+        2 可以解决set属性循环依赖
+        3 bean 循环依赖 属性scope=prototype无法初始化
+    -->
+
+    <bean id="a" class="com.study.lxl.bean.BeanA" scope="prototype">
+        <!--<constructor-arg index="0" ref="b"/>-->
+        <property name="beanB" ref="b"/>
+    </bean>
+
+    <bean id="b" class="com.study.lxl.bean.BeanB" scope="prototype">
+        <constructor-arg index="0" ref="c"/>
+    </bean>
+
+    <bean id="c" class="com.study.lxl.bean.BeanC" scope="prototype">
+        <constructor-arg index="0" ref="a"/>
+    </bean>
+
+</beans>
