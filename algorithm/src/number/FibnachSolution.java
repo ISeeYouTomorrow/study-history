@@ -20,6 +20,9 @@ public class FibnachSolution {
 
         int x2 = fib.fib2(10);
         System.out.println("x2 --- "+x2);
+
+        int x3 = fib.fib3(10);
+        System.out.println("x3 --- "+x3);
     }
 
     /**
@@ -42,6 +45,26 @@ public class FibnachSolution {
         return sum;
     }
 
+
+    public int fib3(int n) {
+        if (n <= 2) {
+            return n;
+        }
+        if (n==3) {
+            return 4;
+        }
+        int one = 0;
+        int two = 1;
+        int three = 2;
+        int sum = 0;
+        for(int i=0;i<n;i++){
+            sum = one+two+three; //第一个数+第二个数 f(N)
+            three = two;
+            two = one;//第一个数变成第二个数 f(n-2)
+            one = sum;//前次求和变成第一个数 f(n-1)
+        }
+        return sum;
+    }
 
 
     /**

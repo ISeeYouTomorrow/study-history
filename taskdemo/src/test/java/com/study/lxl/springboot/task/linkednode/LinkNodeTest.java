@@ -13,7 +13,12 @@ public class LinkNodeTest {
     public void test() {
 //        testRemove(head, 6);
 
-        testDelete(head, 1);
+//        testDelete(head, 1);
+        trimNode(head);
+
+        LinkNode n = reverseNode(head);
+
+        trimNode(n);
     }
 
     public void testRemove(LinkNode top, int val) {
@@ -52,13 +57,29 @@ public class LinkNodeTest {
     }
 
     public static void trimNode(LinkNode top) {
-
+        System.out.println();
         while (top!=null) {
-            System.out.println(top.value);
+            System.out.print(top.value+" ");
             top = top.next;
         }
-
+        System.out.println();
     }
+
+    public static LinkNode reverseNode(LinkNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        LinkNode cur = null;
+        LinkNode pre = null;
+        while (head != null) {
+            cur = head;
+            head = head.next;
+            cur.next = pre;
+            pre = cur;
+        }
+        return cur;
+    }
+
 
 
     public static LinkNode initNode(){

@@ -10,7 +10,7 @@ public class TaskPoolExecutorTest {
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue();
 
 
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,1,1000,blockingQueue);
+//        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,1,1000,blockingQueue);
 
 
 
