@@ -3,9 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/algorithm/algorithm.iml" filepath="$PROJECT_DIR$/algorithm/algorithm.iml" />
-      <module fileurl="file://$PROJECT_DIR$/concurrent-study/concurrent-study.iml" filepath="$PROJECT_DIR$/concurrent-study/concurrent-study.iml" />
-      <module fileurl="file://$PROJECT_DIR$/distribute-demo/distribute-demo.iml" filepath="$PROJECT_DIR$/distribute-demo/distribute-demo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/java-pattern/java-pattern.iml" filepath="$PROJECT_DIR$/java-pattern/java-pattern.iml" />
+      <module fileurl="file://$PROJECT_DIR$/distribute-demo/demo.iml" filepath="$PROJECT_DIR$/distribute-demo/demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/letcode/letcode.iml" filepath="$PROJECT_DIR$/letcode/letcode.iml" />
       <module fileurl="file://$PROJECT_DIR$/study-history.iml" filepath="$PROJECT_DIR$/study-history.iml" />
       <module fileurl="file://$PROJECT_DIR$/taskdemo/taskdemo.iml" filepath="$PROJECT_DIR$/taskdemo/taskdemo.iml" />
     </modules>

@@ -8,15 +8,19 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="concurrent-study" />
+        <module name="demo" />
         <module name="distribute-demo" />
         <module name="java-pattern" />
+        <module name="letcode" />
         <module name="taskdemo" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
       <module name="concurrent-study" target="1.8" />
+      <module name="demo" target="1.8" />
       <module name="distribute-demo" target="1.8" />
       <module name="java-pattern" target="1.8" />
+      <module name="letcode" target="1.8" />
       <module name="taskdemo" target="1.8" />
     </bytecodeTargetLevel>
   </component>
