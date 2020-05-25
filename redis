@@ -1,4 +1,26 @@
 1.redis zsort 排序
-
+    zsort:hash+skiplist
+    zadd key score memeber
+    zrevrange key
+    zrange key
+    分数高低位分别处理，然后排序
 
 2. redis 分布式锁
+    1)jedis 实现 ：set key px pseconds nx
+    2)redission实现：https://www.jianshu.com/p/47fd7f86c848
+    RLock lock = client.getLock("redissonLock1");
+        try {
+            lock.lock(200000, TimeUnit.MILLISECONDS);
+            System.out.println("1111111 lock");
+            Thread.sleep(30000);
+            lock.lock(2000,TimeUnit.MILLISECONDS);//重入一次 +1
+//            HGETALL redissonLock1 //锁name  = set
+//            1) "aeb732ea-86c1-4129-9cf6-2aca9e00b649:1"//id
+//            2) "1"
+//            加锁成功后，redis会产生一条hash结构的数据，key为锁的名称；field为随机字符串+线程id，值为1。如果多次在同一个线程里加锁，则值累加。
+            System.out.println("2222222 lock");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
