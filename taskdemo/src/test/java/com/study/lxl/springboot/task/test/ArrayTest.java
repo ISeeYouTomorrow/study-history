@@ -3,6 +3,7 @@ package com.study.lxl.springboot.task.test;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -112,6 +113,7 @@ public class ArrayTest {
 
     private volatile int n = 1;
 
+    private AtomicInteger x = new AtomicInteger(1);
     private Object lock1 = new Object();
     private Object lock2 = new Object();
 
@@ -120,7 +122,7 @@ public class ArrayTest {
         Thread t1 = new Thread(() -> {
             synchronized (lock2) {
                 while (true) {
-                   System.out.println(Thread.currentThread().getName()+" "+ (n*2-1));
+                   System.out.println(Thread.currentThread().getName()+" "+ x.getAndIncrement());
                    lock2.notify();
                    try {
                        lock2.wait();
@@ -134,7 +136,7 @@ public class ArrayTest {
         Thread t2 = new Thread(() -> {
             synchronized (lock2) {//必须在synchonized代码里操作对象的wait/notify方法
                 while (true) {
-                    System.out.println(Thread.currentThread().getName()+" "+ (n*2));
+                    System.out.println(Thread.currentThread().getName()+" "+ x.getAndIncrement());
                     n++;
                     lock2.notify();
                     try {
