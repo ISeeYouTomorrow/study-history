@@ -47,10 +47,11 @@ public class BigNumberReverse {
 
     public static void main(String[] args) {
         BigNumberReverse bigNumberReverse = new BigNumberReverse();
-        System.out.println("12345");
-        bigNumberReverse.reverseBigNumber(12345l);
+        long l = 123456790l;
+        System.out.println(l);
+        bigNumberReverse.reverseBigNumber(l);
         System.out.println("");
-        bigNumberReverse.reverseBigNumber2(12345l);
+        bigNumberReverse.reverseBigNumber2(l);
 //        301 = 1*10^0 +0*10^1+3*10^2;
     }
 
